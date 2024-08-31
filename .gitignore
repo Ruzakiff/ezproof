@@ -1,0 +1,22 @@
+# Ignore all output folders
+*_output/
+
+# Ignore virtual environment
+venv/
+
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore environment-specific files
+.env
+.env.*
+
+# Ignore logs
+*.log
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
