@@ -24,3 +24,8 @@ Thumbs.db
 # Ignore credentials files
 credentials.json
 *.json
+
+# Ignore credential files
+a.json
+credentials.json
+token.json
