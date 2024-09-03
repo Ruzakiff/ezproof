@@ -63,8 +63,7 @@ def calculate_optimal_size(max_size, aspect_ratio):
     else:
         # Height is the limiting factor
         return int(max_height * aspect_ratio), max_height
-
-def create_tshirt_mockup(design_path, tshirt_path, position=DesignPosition.MIDDLE, size_ratio=0.5):
+def create_tshirt_mockup(design_path, tshirt_path, output_folder, position=DesignPosition.MIDDLE, size_ratio=0.5):
     design = Image.open(design_path).convert("RGBA")
     tshirt = Image.open(tshirt_path).convert("RGBA")
 
@@ -121,17 +120,21 @@ def create_tshirt_mockup(design_path, tshirt_path, position=DesignPosition.MIDDL
 if __name__ == "__main__":
     design_path = "/Users/ryan/Desktop/ezproof/email_191a54041fb5f7a5_IMG_3599.jpg_output/email_191a54041fb5f7a5_IMG_3599.jpg_isnet-general-use_alpha.png"
     tshirt_path = "/Users/ryan/Desktop/ezproof/mockupgen/materials/redtshirt.jpg"
+    output_folder = "/Users/ryan/Desktop/ezproof/mockupgen/output"
+    
+    # Ensure output folder exists
+    os.makedirs(output_folder, exist_ok=True)
     
     # Generate mockup with design in the middle, 50% of max size (default)
-    mockup_middle = create_tshirt_mockup(design_path, tshirt_path,size_ratio=1)
+    mockup_middle = create_tshirt_mockup(design_path, tshirt_path, output_folder, size_ratio=1)
     
     # Generate mockup with design in the top left, 30% of max size
-    mockup_top_left = create_tshirt_mockup(design_path, tshirt_path, DesignPosition.TOP_LEFT, size_ratio=.7)
+    mockup_top_left = create_tshirt_mockup(design_path, tshirt_path, output_folder, DesignPosition.TOP_LEFT, size_ratio=.7)
     
     # Generate mockup with design in the top right, 30% of max size
-    mockup_top_right = create_tshirt_mockup(design_path, tshirt_path, DesignPosition.TOP_RIGHT, size_ratio=.7)
+    mockup_top_right = create_tshirt_mockup(design_path, tshirt_path, output_folder, DesignPosition.TOP_RIGHT, size_ratio=.7)
 
     # Save the results
-    mockup_middle.save("mockup_middle.png")
-    mockup_top_left.save("mockup_top_left.png")
-    mockup_top_right.save("mockup_top_right.png")
+    mockup_middle.save(os.path.join(output_folder, "mockup_middle.png"))
+    mockup_top_left.save(os.path.join(output_folder, "mockup_top_left.png"))
+    mockup_top_right.save(os.path.join(output_folder, "mockup_top_right.png"))
