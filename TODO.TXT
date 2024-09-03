@@ -1,0 +1,2 @@
+linkup mockupgen into email folder, attach both attachments
+//pass in email folder path for where to save
