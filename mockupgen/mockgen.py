@@ -3,7 +3,7 @@ import os
 import numpy as np
 import cv2
 from enum import Enum
-from detectdim import get_tshirt_dimensions
+from .detectdim import detect_tshirt_dimensions
 
 class DesignPosition(Enum):
     MIDDLE = 1
@@ -67,7 +67,7 @@ def create_tshirt_mockup(design_path, tshirt_path, output_folder, position=Desig
     design = Image.open(design_path).convert("RGBA")
     tshirt = Image.open(tshirt_path).convert("RGBA")
 
-    (tshirt_width, tshirt_height), corners, safe_area = get_tshirt_dimensions(tshirt_path)
+    (tshirt_width, tshirt_height), corners, safe_area = detect_tshirt_dimensions(tshirt_path)
 
     # Adjust safe_area to be relative to the t-shirt corners
     tshirt_left, tshirt_top = corners[0]
@@ -138,3 +138,4 @@ if __name__ == "__main__":
     mockup_middle.save(os.path.join(output_folder, "mockup_middle.png"))
     mockup_top_left.save(os.path.join(output_folder, "mockup_top_left.png"))
     mockup_top_right.save(os.path.join(output_folder, "mockup_top_right.png"))
+

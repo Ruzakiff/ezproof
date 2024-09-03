@@ -6,6 +6,7 @@ from gmail_service import get_attachment_type, get_attachment_data, send_reply_e
 from autoediting.backremove import remove_background_from_data
 from config import load_processing_config, load_print_config
 from anal import run_checks, print_image_info
+from mockupgen.mockgen import create_tshirt_mockup, DesignPosition
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -28,9 +29,9 @@ async def process_email(service, email_data):
         else:
             logger.warning(f"No processor found for attachment type: {attachment_type}")
     
-    reply_content, attachment_data = generate_reply(content, processing_results)
+    reply_content, attachments_data = generate_reply(content, processing_results)
     
-    await send_reply_email(service, sender, subject, reply_content, message_id, attachment_data)
+    await send_reply_email(service, sender, subject, reply_content, message_id, attachments_data)
     await mark_email_as_read(service, message_id)
 
 async def process_attachment(service, attachment, email_content, message_id, processor_name):
@@ -102,7 +103,7 @@ async def process_image(service, attachment, email_content, message_id):
 
 def generate_reply(original_content, processing_results):
     reply = "Thank you for your email. We've processed and analyzed your attachments:\n\n"
-    attachment_data = None
+    attachments_data = []
     u2netp_alpha_image = None
 
     for result in processing_results:
@@ -139,13 +140,32 @@ def generate_reply(original_content, processing_results):
         reply += "\nWe've attached the processed image using u2netp model with alpha matting for your reference."
         with open(u2netp_alpha_image['path'], 'rb') as f:
             image_data = f.read()
-        attachment_data = {
+        attachments_data.append({
             'filename': u2netp_alpha_image['filename'],
             'data': image_data
-        }
+        })
+
+        # Create mockup
+        tshirt_path = "/Users/ryan/Desktop/ezproof/mockupgen/materials/redtshirt.jpg"
+        mockup = create_tshirt_mockup(u2netp_alpha_image['path'], tshirt_path, os.path.dirname(u2netp_alpha_image['path']))
+        
+        # Save mockup
+        mockup_filename = f"mockup_{os.path.basename(u2netp_alpha_image['filename'])}"
+        mockup_path = os.path.join(os.path.dirname(u2netp_alpha_image['path']), mockup_filename)
+        mockup.save(mockup_path)
+
+        # Add mockup to attachments
+        with open(mockup_path, 'rb') as f:
+            mockup_data = f.read()
+        attachments_data.append({
+            'filename': mockup_filename,
+            'data': mockup_data
+        })
+
+        reply += "\nWe've also included a mockup of your design on a t-shirt for visualization."
     else:
         reply += "\nUnfortunately, we couldn't process any of the attachments successfully with the u2netp model and alpha matting."
 
     reply += "\nIf you have any questions or need further assistance with printing, please don't hesitate to ask."
 
-    return reply, attachment_data
+    return reply, attachments_data
