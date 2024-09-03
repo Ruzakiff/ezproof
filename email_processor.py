@@ -4,7 +4,7 @@ import logging
 import os
 from gmail_service import get_attachment_type, get_attachment_data, send_reply_email, mark_email_as_read
 from autoediting.backremove import remove_background_from_data
-from config import load_processing_config
+from config import load_processing_config, load_print_config
 from anal import run_checks, print_image_info
 
 # Set up logging
@@ -47,13 +47,17 @@ async def process_image(service, attachment, email_content, message_id):
     if image_data:
         base_filename = f"email_{message_id}_{attachment['filename']}"
         try:
-            # Run image analysis
-            print_dpi = 300  # You might want to make this configurable
-            desired_width_inch = 8.5  # You might want to make this configurable
-            desired_height_inch = 11  # You might want to make this configurable
-            bleed_inch = 0.125  # You might want to make this configurable
+            # Load print configuration
+            print_config = load_print_config()
 
-            analysis_results, halftone_image = run_checks(image_data, print_dpi, desired_width_inch, desired_height_inch, bleed_inch)
+            # Run image analysis
+            analysis_results, halftone_image = run_checks(
+                image_data,
+                print_config['print_dpi'],
+                print_config['desired_width_inch'],
+                print_config['desired_height_inch'],
+                print_config['bleed_inch']
+            )
             
             # Get detailed image info
             image_info = {}
